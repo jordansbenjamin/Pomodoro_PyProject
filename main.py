@@ -11,17 +11,29 @@ WORK_MIN = 25
 SHORT_BREAK_MIN = 5
 LONG_BREAK_MIN = 20
 REPS = 0
+CHECKS = ""
+timer = None
 
-# ---------------------------- TIMER RESET ------------------------------- # 
+# ---------------------------- TIMER RESET ------------------------------- #
+def reset_timer():
+    window.after_cancel(timer)
+    # timer_text 00:00
+    canvas.itemconfig(timer_text, text="00:00")
+    # title_label "Timer"
+    title_label.config(text="Timer", fg=GREEN)
+    # Reset check marks
+    check_label.config(text="")
+    global REPS
+    REPS = 0
 
 # ---------------------------- TIMER MECHANISM ------------------------------- #
 def start_timer():
     global REPS
     REPS += 1
-    work_sec = WORK_MIN * 60
-    # work_sec = 1 * 60 / 10
-    short_break_sec = SHORT_BREAK_MIN * 60
-    # short_break_sec = 1 * 60 / 4
+    # work_sec = WORK_MIN * 60
+    work_sec = 1 * 60 / 10
+    # short_break_sec = SHORT_BREAK_MIN * 60
+    short_break_sec = 1 * 60 / 4
     long_break_sec = LONG_BREAK_MIN * 60
 
     # If it's the 8th rep:
@@ -39,7 +51,7 @@ def start_timer():
 
 # ---------------------------- COUNTDOWN MECHANISM ------------------------------- #
 def count_down(count):
-    
+    global CHECKS
     count_min = math.floor(count / 60)
     count_sec = count % 60
     if count_sec == 0:
@@ -49,9 +61,13 @@ def count_down(count):
 
     canvas.itemconfig(timer_text, text=f"{count_min}:{count_sec}")
     if count > 0:
-        window.after(1000, count_down, count - 1)
+        global timer
+        timer = window.after(1000, count_down, count - 1)
     else:
         start_timer()
+        if REPS % 2 == 0:
+            CHECKS += "✔"
+            check_label.config(text=CHECKS)
 
 # ---------------------------- UI SETUP ------------------------------- #
 window = Tk()
@@ -75,11 +91,11 @@ start_btn = Button(text="Start", highlightbackground=YELLOW, command=start_timer
 start_btn.grid(column=0, row=2)
 
 # Reset button
-reset_btn = Button(text="Reset", highlightbackground=YELLOW)
+reset_btn = Button(text="Reset", highlightbackground=YELLOW, command=reset_timer)
 reset_btn.grid(column=2, row=2)
 
 # Checkmark label
-check_label = Label(text="✔", bg=YELLOW, fg=GREEN)
+check_label = Label(bg=YELLOW, fg=GREEN)
 check_label.grid(column=1, row=3)
 
 window.mainloop()
