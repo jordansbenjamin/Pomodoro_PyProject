@@ -10,33 +10,57 @@ FONT_NAME = "Courier"
 WORK_MIN = 25
 SHORT_BREAK_MIN = 5
 LONG_BREAK_MIN = 20
+REPS = 0
 
 # ---------------------------- TIMER RESET ------------------------------- # 
 
 # ---------------------------- TIMER MECHANISM ------------------------------- #
 def start_timer():
-    count_down(5 * 60)
+    global REPS
+    REPS += 1
+    work_sec = WORK_MIN * 60
+    # work_sec = 1 * 60 / 10
+    short_break_sec = SHORT_BREAK_MIN * 60
+    # short_break_sec = 1 * 60 / 4
+    long_break_sec = LONG_BREAK_MIN * 60
+
+    # If it's the 8th rep:
+    if REPS % 8 == 0:
+        title_label.config(text="Break", fg=RED)
+        count_down(long_break_sec)
+    # If it's the 2nd/4th/6th rep:
+    elif REPS % 2 == 0:
+        title_label.config(text="Break", fg=PINK)
+        count_down(short_break_sec)
+    # If it's the 1st/3rd/5th/7th rep:
+    else:
+        title_label.config(text="Work", fg=GREEN)
+        count_down(work_sec)
 
 # ---------------------------- COUNTDOWN MECHANISM ------------------------------- #
 def count_down(count):
-
+    
     count_min = math.floor(count / 60)
     count_sec = count % 60
     if count_sec == 0:
         count_sec = "00"
+    elif count_sec < 10:
+        count_sec = f"0{count_sec}"
 
     canvas.itemconfig(timer_text, text=f"{count_min}:{count_sec}")
     if count > 0:
         window.after(1000, count_down, count - 1)
+    else:
+        start_timer()
 
 # ---------------------------- UI SETUP ------------------------------- #
 window = Tk()
 window.title("Pomodoro")
 window.config(padx=100, pady=50, bg=YELLOW)
 
-# Timer label
-timer_label = Label(text="Timer", font=(FONT_NAME, 55, "bold"), fg=GREEN, bg=YELLOW)
-timer_label.grid(column=1, row=0)
+# Title label
+title_label = Label(text="Timer", font=(FONT_NAME, 55, "bold"), fg=GREEN, bg=YELLOW)
+title_label.grid(column=1, row=0)
 
 # Tomato canvas
 canvas = Canvas(width=200, height=224, bg=YELLOW, highlightthickness=0)
